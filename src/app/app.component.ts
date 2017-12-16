@@ -2,7 +2,7 @@ import { Component, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { NgControl } from "@angular/forms";
 import { Subject } from "rxjs/Subject";
 
-import { takeUntil, takeWhile } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -27,9 +27,14 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    //this.sub.unsubscribe();
-    this.destroy$.next('');
-    this.destroy$.unsubscribe();
-    // or this.destroy$.complete();
+    // 1: use sub
+    // this.sub.unsubscribe();
+
+    // 2: use subject takeUntil
+    // this.destroy$.next('');
+    // this.destroy$.unsubscribe();
+
+    // 2: use subject takeUntil or use complete
+    this.destroy$.complete();
   }
 }
