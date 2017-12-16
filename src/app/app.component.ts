@@ -30,6 +30,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   checkboxControlValue$ = defer (
     () => {
       if(this.formData) {
+        // 沒有使用takeUntil的原因是這個不需要unsuscribe
         return this.formData.get('isSend').valueChanges.pipe(startWith(true));
       }
     }
