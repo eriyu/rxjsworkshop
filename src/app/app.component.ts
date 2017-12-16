@@ -6,6 +6,8 @@ import { combineLatest } from "rxjs/observable/combineLatest";
 
 import { mergeMap, debounceTime,tap, map,filter,startWith,shareReplay } from 'rxjs/operators';
 import { HttpParams, HttpClient } from "@angular/common/http";
+import { Observable } from 'rxjs/observable';
+import { of } from 'rxjs/observable/of';
 
 @Component({
   selector: 'app-root',
@@ -30,7 +32,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   checkboxControlValue$ = defer (
     () => {
       if(this.formData) {
-        // 沒有使用takeUntil的原因是這個不需要unsuscribe
         return this.formData.get('isSend').valueChanges.pipe(startWith(true));
       }
     }
@@ -42,15 +43,17 @@ export class AppComponent implements OnInit, AfterViewInit {
     (searchVal,chkVal) => ({searchVal, chkVal})).pipe(
     debounceTime(500),
     mergeMap(({searchVal, chkVal}) => {
-        return this.http.jsonp<any[]>(
+      if(chkVal) {
+        return this.http.jsonp<any>(
           this.searchUrl(searchVal,this.wikiAPI),
           'callback'
-        )
-      },
-      ({searchVal, chkVal}, data) => ({chkVal, data}) // 第二個參數是做map的功能
-    ),
-    map(({chkVal,data}) => {
-      if(data.length > 0 && chkVal) {
+        );
+      } else {
+        return of([]); //RxJS 5.5 的寫法
+      }
+    }),
+    map(({data}) => {
+      if(data.length > 0) {
         data.shift();
         return data[0];
       }
