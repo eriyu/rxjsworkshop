@@ -40,10 +40,13 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.checkboxControlValue$,
     (searchVal,chkVal) => ({searchVal, chkVal})).pipe(
     debounceTime(500),
-    mergeMap(({searchVal, chkVal}) => this.http.jsonp<any[]>(
-        this.searchUrl(searchVal,this.wikiAPI),
-        'callback'
-      ),({searchVal, chkVal}, data) => ({chkVal, data})
+    mergeMap(({searchVal, chkVal}) => {
+        return this.http.jsonp<any[]>(
+          this.searchUrl(searchVal,this.wikiAPI),
+          'callback'
+        )
+      },
+      ({searchVal, chkVal}, data) => ({chkVal, data}) // 第二個參數是做map的功能
     ),
     map(({chkVal,data}) => {
       if(data.length > 0 && chkVal) {
