@@ -1,8 +1,11 @@
 import { Component, ViewChild, AfterViewInit, OnDestroy, OnChanges, OnInit } from '@angular/core';
 import { NgControl, FormGroup, FormControl, Validators, FormBuilder } from "@angular/forms";
 import { Subject } from "rxjs/Subject";
+import { defer } from "rxjs/observable/defer";
 
-import { takeUntil, map, tap } from 'rxjs/operators';
+
+import { mergeMap, debounceTime,tap, map } from 'rxjs/operators';
+import { HttpParams, HttpClient } from "@angular/common/http";
 
 @Component({
   selector: 'app-root',
@@ -12,79 +15,68 @@ import { takeUntil, map, tap } from 'rxjs/operators';
 })
 export class AppComponent implements OnInit, AfterViewInit {
 
-  formData = this.fb.group({
-    'firstName': ['', Validators.required],
-    'lastName': ['', Validators.required],
-    'phoneNumber': ['', [ Validators.required, Validators.minLength(8)]],
-    'subGroup': this.fb.group({
-      'nickname':['']
+  readonly wikiAPI = '//en.wikipedia.org/w/api.php';
+
+  formData: FormGroup;
+  searchResult;
+
+  searchControlValue$ = defer (
+    () => {
+      if(this.formData) {
+        return this.formData.get('search').valueChanges;
+      }
+    }
+  ).pipe(tap(value => console.log(value)));
+
+  searchResult$ = this.searchControlValue$.pipe(
+    debounceTime(500),
+    mergeMap(value => this.http.jsonp(
+        this.searchUrl(value,this.wikiAPI),
+        'callback'
+      )),
+    map((data: any[]) => {
+      if(data.length > 0) {
+        data.shift();
+        return data[0];
+      }
+      return [];
     })
-  });
+  );
+  // .subscribe(value => console.log(value));
 
-  //#region
-  // formData = new FormGroup({
-  //   'firstName': new FormControl('Kevin', Validators.required),
-  //   'lastName': new FormControl({value: 'Yang', disabled:true}),
-  //   'phoneNumber': new FormControl('', [
-  //     Validators.required,
-  //     Validators.minLength(8)
-  //   ])
-  // });
-  //#endregion
-
-  constructor(private fb: FormBuilder){
+  constructor(
+    private fb: FormBuilder,
+    private http: HttpClient
+  ){
 
   }
 
   ngOnInit() {
-    this.formData.reset({
-      'firstName': 'Kevein',
-      'lastName': 'Yang',
-      // 'lastName': { value:'Yang', disable: true },
-      'phoneNumber': '',
-      'subGroup':{
-        'nickename': 'kk'
-      }
+
+    this.formData = this.fb.group({
+      'search': [''],
     });
 
-    const firstNameControl = this.formData.get('firstName');
-    if(!!firstNameControl) {
-      firstNameControl.clearValidators();
-      firstNameControl.setValidators(Validators.required);
-      firstNameControl.setErrors({'blahError': true});
-      firstNameControl.updateValueAndValidity();
-    }
-
-    const nickenameControl = this.formData.get('subGroup.nickename');
-    // const nickenameControl = this.formData.get(['subGroup','nickename']);
-    if(!!nickenameControl) {
-      console.log(nickenameControl.value);
-    } else {
-      console.error('not found');
-    }
   }
 
   ngAfterViewInit() {
-    const firstNameControl = this.formData.get('firstName');
-    if(!!firstNameControl && !!firstNameControl.valueChanges) {
-      firstNameControl.valueChanges.pipe(
-        this.toggleLastName()
-      ).subscribe();
-    }
+
+
   }
 
-  toggleLastName() {
-    return obs => obs.pipe(tap( value => {
-      if(value === 'aaa') {
-        this.formData.get('lastName').enable();
-      } else {
-        this.formData.get('lastName').disable();
-      }
-    }));
+  searchUrl(term, base) {
+    let params = new HttpParams()
+      .append('action', 'opensearch')
+      .append('search', encodeURIComponent(term))
+      .append('format' ,'json');
+      return `${base}?${params.toString()}`;
   }
 
   send() {
-    console.log('formData.value',this.formData.value);
-    console.log('formData.getRawValue',this.formData.getRawValue());
+
+    this.http.jsonp(this.searchUrl('1234',this.wikiAPI),
+    'callback').subscribe( value => {
+      console.log(value);
+    });
   }
 }
