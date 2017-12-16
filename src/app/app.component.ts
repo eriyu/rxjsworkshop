@@ -1,5 +1,4 @@
-import {Input} from '@angular/compiler';
-import { Component, ViewChild, AfterViewInit, OnDestroy, OnChanges } from '@angular/core';
+import { Component, ViewChild, AfterViewInit, OnDestroy, OnChanges, OnInit } from '@angular/core';
 import { NgControl, FormGroup, FormControl, Validators, FormBuilder } from "@angular/forms";
 import { Subject } from "rxjs/Subject";
 
@@ -11,14 +10,7 @@ import { takeUntil, map } from 'rxjs/operators';
   styleUrls: ['./app.component.css'],
   styles: []
 })
-export class AppComponent implements OnChanges {
-
-  // when use input pass data pls use onchanges reset form
-  @Input() data = {
-    'firstName': 'Kevein',
-    'lastName': 'Yang',
-    'phoneNumber': ''
-  };
+export class AppComponent implements OnInit {
 
   formData = this.fb.group({
     'firstName': ['', Validators.required],
@@ -37,16 +29,23 @@ export class AppComponent implements OnChanges {
   // });
   //#endregion
 
-  // data$ = this.formData.valueChanges();
-  // summary$ = this.data$.pipe(map(value=>value));
-
   constructor(private fb: FormBuilder){
 
   }
 
-  ngOnChanges() {
-    console.log('changes');
-    this.formData.reset(this.data);
+  ngOnInit() {
+    this.formData.reset({
+      'firstName': 'Kevein',
+      // 'lastName': 'Yang',
+      'lastName': { value:'Yang', disable: true },
+      'phoneNumber': ''
+    });
+
+    const firstNameControl = this.formData.get('firstName');
+    if(!!firstNameControl) {
+      firstNameControl.clearValidators();
+      firstNameControl.setValidators(Validators.required);
+    }
   }
 
   send() {
