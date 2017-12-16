@@ -15,7 +15,10 @@ export class AppComponent implements OnInit {
   formData = this.fb.group({
     'firstName': ['', Validators.required],
     'lastName': ['', Validators.required],
-    'phoneNumber': ['', [ Validators.required, Validators.minLength(8)]]
+    'phoneNumber': ['', [ Validators.required, Validators.minLength(8)]],
+    'subGroup': this.fb.group({
+      'nickname':['']
+    })
   });
 
   //#region
@@ -36,15 +39,28 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.formData.reset({
       'firstName': 'Kevein',
-      // 'lastName': 'Yang',
-      'lastName': { value:'Yang', disable: true },
-      'phoneNumber': ''
+      'lastName': 'Yang',
+      // 'lastName': { value:'Yang', disable: true },
+      'phoneNumber': '',
+      'subGroup':{
+        'nickename': 'kk'
+      }
     });
 
     const firstNameControl = this.formData.get('firstName');
     if(!!firstNameControl) {
       firstNameControl.clearValidators();
       firstNameControl.setValidators(Validators.required);
+      firstNameControl.setErrors({'blahError': true});
+      firstNameControl.updateValueAndValidity();
+    }
+
+    const nickenameControl = this.formData.get('subGroup.nickename');
+    // const nickenameControl = this.formData.get(['subGroup','nickename']);
+    if(!!nickenameControl) {
+      console.log(nickenameControl.value);
+    } else {
+      console.error('not found');
     }
   }
 

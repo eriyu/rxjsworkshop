@@ -1,7 +1,10 @@
 <form [formGroup]="formData" novalidate (ngSubmit)="send()">
   <div>
     <label for="firstName">First Name</label>
-    <input type="text" name="firstName" formControlName="firstName"/>
+    <input type="text" name="firstName" formControlName="firstName" />
+  </div>
+  <div [myError]="formData.get('firstName')">
+    <!-- {{ formData.get('firstName')?.errors | json}} -->
   </div>
   <div>
     <label for="lastName">last Name</label>
@@ -11,9 +14,9 @@
     <label for="phoneNumber">Phone Number</label>
     <input type="text" name="phoneNumber" formControlName="phoneNumber"/>
   </div>
-  <div *ngIf="formData.controls?.phoneNumber?.invalid">
+  <!-- <div *ngIf="formData.controls?.phoneNumber?.invalid">
     {{ formData.controls?.phoneNumber?.errors | json}}
     {{ formData.get('phoneNumber')?.errors | json}}
-  </div>
+  </div> -->
   <button type="submit" [disabled]="formData.invalid">Send</button>
 </form>
