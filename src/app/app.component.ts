@@ -4,7 +4,7 @@ import { Subject } from "rxjs/Subject";
 import { defer } from "rxjs/observable/defer";
 
 
-import { mergeMap, debounceTime,tap, map } from 'rxjs/operators';
+import { mergeMap, debounceTime,tap, map,filter } from 'rxjs/operators';
 import { HttpParams, HttpClient } from "@angular/common/http";
 
 @Component({
@@ -18,7 +18,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   readonly wikiAPI = '//en.wikipedia.org/w/api.php';
 
   formData: FormGroup;
-  searchResult;
 
   searchControlValue$ = defer (
     () => {
@@ -26,10 +25,19 @@ export class AppComponent implements OnInit, AfterViewInit {
         return this.formData.get('search').valueChanges;
       }
     }
-  ).pipe(tap(value => console.log(value)));
+  ).pipe(tap(value => console.log('searchControlValue$', value)));
+
+  checkboxControlValue$ = defer (
+    () => {
+      if(this.formData) {
+        return this.formData.get('isSend').valueChanges;
+      }
+    }
+  ).pipe(tap(value => console.log('checkboxControlValue$', value)));
 
   searchResult$ = this.searchControlValue$.pipe(
     debounceTime(500),
+    filter(() => this.formData.get('isSend').value),
     mergeMap(value => this.http.jsonp(
         this.searchUrl(value,this.wikiAPI),
         'callback'
@@ -44,6 +52,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   );
   // .subscribe(value => console.log(value));
 
+  // isSend$ = this.checkboxControlValue$.subscribe(value => console.log(value));
+
   constructor(
     private fb: FormBuilder,
     private http: HttpClient
@@ -55,13 +65,14 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     this.formData = this.fb.group({
       'search': [''],
+      'isSend': [false]
     });
 
   }
 
   ngAfterViewInit() {
 
-
+    // this.checkboxControlValue$.subscribe(value => console.log(value));
   }
 
   searchUrl(term, base) {
