@@ -2,7 +2,7 @@ import { Component, ViewChild, AfterViewInit, OnDestroy, OnChanges, OnInit } fro
 import { NgControl, FormGroup, FormControl, Validators, FormBuilder } from "@angular/forms";
 import { Subject } from "rxjs/Subject";
 
-import { takeUntil, map } from 'rxjs/operators';
+import { takeUntil, map, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +10,7 @@ import { takeUntil, map } from 'rxjs/operators';
   styleUrls: ['./app.component.css'],
   styles: []
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
 
   formData = this.fb.group({
     'firstName': ['', Validators.required],
@@ -39,8 +39,8 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.formData.reset({
       'firstName': 'Kevein',
-      'lastName': 'Yang',
-      // 'lastName': { value:'Yang', disable: true },
+      // 'lastName': 'Yang',
+      'lastName': { value:'Yang', disable: true },
       'phoneNumber': '',
       'subGroup':{
         'nickename': 'kk'
@@ -61,6 +61,21 @@ export class AppComponent implements OnInit {
       console.log(nickenameControl.value);
     } else {
       console.error('not found');
+    }
+  }
+
+  ngAfterViewInit() {
+    const firstNameControl = this.formData.get('firstName');
+    if(!!firstNameControl && !!firstNameControl.valueChanges) {
+      firstNameControl.valueChanges.pipe(
+        tap( value => {
+          if(value === 'Kevin') {
+            this.formData.get('lastName').enable();
+          } else {
+            this.formData.get('lastName').disable();
+          }
+        })
+      ).subscribe();
     }
   }
 
