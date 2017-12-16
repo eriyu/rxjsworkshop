@@ -4,7 +4,7 @@ import { Subject } from "rxjs/Subject";
 import { defer } from "rxjs/observable/defer";
 import { combineLatest } from "rxjs/observable/combineLatest";
 
-import { mergeMap, debounceTime,tap, map,filter,startWith } from 'rxjs/operators';
+import { mergeMap, debounceTime,tap, map,filter,startWith,shareReplay } from 'rxjs/operators';
 import { HttpParams, HttpClient } from "@angular/common/http";
 
 @Component({
@@ -54,7 +54,8 @@ export class AppComponent implements OnInit, AfterViewInit {
         return data[0];
       }
       return [];
-    })
+    }),
+    shareReplay()
   );
 
   constructor(

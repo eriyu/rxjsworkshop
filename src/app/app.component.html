@@ -1,13 +1,18 @@
-<form [formGroup]="formData" novalidate (ngSubmit)="send()" >
+<form [formGroup]="formData" novalidate (ngSubmit)="send()">
   <div>
     <label for="search">Search</label>
     <input type="text" name="search" formControlName="search" />
   </div>
   <div>
-    <input type="checkbox" name="isSend" formControlName="isSend"/> 要不要發API
+    <input type="checkbox" name="isSend" formControlName="isSend" /> 要不要發API
   </div>
   <button type="submit">Send</button>
 </form>
+<ul>
+  <li *ngFor="let item of searchResult$ | async">
+    {{ item }}
+  </li>
+</ul>
 <ul>
   <li *ngFor="let item of searchResult$ | async">
     {{ item }}
