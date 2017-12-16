@@ -8,13 +8,27 @@
   </div>
   <button type="submit">Send</button>
 </form>
-<ul>
-  <li *ngFor="let item of searchResult$ | async">
-    {{ item }}
-  </li>
-</ul>
-<ul>
-  <li *ngFor="let item of searchResult$ | async">
-    {{ item }}
-  </li>
-</ul>
+<!--
+  使用shareReplay operator避免ajax時async pipe重複發request的問題
+  https://dotblogs.com.tw/wellwind/2017/08/10/using-rxjs-sharereplay-operator-for-async-pipe
+-->
+<table *ngIf="searchResult$ | async">
+  <tr>
+    <td>use li</td>
+    <td>use div</td>
+  </tr>
+  <tr>
+    <td>
+      <ul>
+        <li *ngFor="let item of searchResult$ | async">
+          {{ item }}
+        </li>
+      </ul>
+    </td>
+    <td>
+      <div *ngFor="let item of searchResult$ | async">
+        {{ item | json}}
+      </div>
+    </td>
+  </tr>
+</table>

@@ -55,6 +55,8 @@ export class AppComponent implements OnInit, AfterViewInit {
       }
       return [];
     }),
+    // 使用shareReplay operator避免ajax時async pipe重複發request的問題
+    // https://dotblogs.com.tw/wellwind/2017/08/10/using-rxjs-sharereplay-operator-for-async-pipe
     shareReplay()
   );
 
