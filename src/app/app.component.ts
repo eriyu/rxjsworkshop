@@ -15,10 +15,14 @@ export class AppComponent {
   formData = new FormGroup({
     'firstName': new FormControl('Kevin', Validators.required),
     'lastName': new FormControl({value: 'Yang', disabled:true}),
-    'phoneNumber': new FormControl('', [
+    // 'phoneNumber': new FormControl('', [
+    //   Validators.required,
+    //   Validators.minLength(8)
+    // ])
+    'phoneNumber': new FormControl('', Validators.compose([
       Validators.required,
       Validators.minLength(8)
-    ])
+    ]))
   });
 
   send() {
