@@ -1,5 +1,5 @@
 import { Component, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
-import { NgControl, FormGroup } from "@angular/forms";
+import { NgControl, FormGroup, FormControl, Validators } from "@angular/forms";
 import { Subject } from "rxjs/Subject";
 
 import { takeUntil } from 'rxjs/operators';
@@ -11,7 +11,18 @@ import { takeUntil } from 'rxjs/operators';
   styles: []
 })
 export class AppComponent {
-  send(form) {
-    console.log(form);
+
+  formData = new FormGroup({
+    'firstName': new FormControl('Kevin', Validators.required),
+    'lastName': new FormControl({value: 'Yang', disabled:true}),
+    'phoneNumber': new FormControl('', [
+      Validators.required,
+      Validators.minLength(8)
+    ])
+  });
+
+  send() {
+    console.log('formData.value',this.formData.value);
+    console.log('formData.getRawValue',this.formData.getRawValue());
   }
 }

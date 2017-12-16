@@ -1,19 +1,15 @@
-<form #form="ngForm" novalidate (ngSubmit)="send(form)">
+<form [formGroup]="formData" novalidate (ngSubmit)="send()">
   <div>
     <label for="firstName">First Name</label>
-    <input type="text" name="firstName" [(ngModel)]="firstName" required/>
+    <input type="text" name="firstName" formControlName="firstName"/>
   </div>
   <div>
     <label for="lastName">last Name</label>
-    <input type="text" name="lastName" [(ngModel)]="lastName" required/>
+    <input type="text" name="lastName" formControlName="lastName"/>
   </div>
   <div>
     <label for="phoneNumber">Phone Number</label>
-    <input type="text" name="phoneNumber" [(ngModel)]="phoneNumber" required/>
+    <input type="text" name="phoneNumber" formControlName="phoneNumber"/>
   </div>
-  <!-- {{ form.get('phoneNumber')?.errors | json}} 用這個會報錯-->
-  <div *ngIf="form.controls?.phoneNumber?.errors">
-      {{ form.controls?.phoneNumber?.errors | json}}
-  </div>
-  <button type="submit" [disabled]="form.invalid">Send</button>
+  <button type="submit" [disabled]="formData.invalid">Send</button>
 </form>
