@@ -39,8 +39,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.formData.reset({
       'firstName': 'Kevein',
-      // 'lastName': 'Yang',
-      'lastName': { value:'Yang', disable: true },
+      'lastName': 'Yang',
+      // 'lastName': { value:'Yang', disable: true },
       'phoneNumber': '',
       'subGroup':{
         'nickename': 'kk'
@@ -68,15 +68,19 @@ export class AppComponent implements OnInit, AfterViewInit {
     const firstNameControl = this.formData.get('firstName');
     if(!!firstNameControl && !!firstNameControl.valueChanges) {
       firstNameControl.valueChanges.pipe(
-        tap( value => {
-          if(value === 'Kevin') {
-            this.formData.get('lastName').enable();
-          } else {
-            this.formData.get('lastName').disable();
-          }
-        })
+        this.toggleLastName()
       ).subscribe();
     }
+  }
+
+  toggleLastName() {
+    return obs => obs.pipe(tap( value => {
+      if(value === 'aaa') {
+        this.formData.get('lastName').enable();
+      } else {
+        this.formData.get('lastName').disable();
+      }
+    }));
   }
 
   send() {
