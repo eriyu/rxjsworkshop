@@ -2,9 +2,9 @@ import { Component, ViewChild, AfterViewInit, OnDestroy, OnChanges, OnInit } fro
 import { NgControl, FormGroup, FormControl, Validators, FormBuilder } from "@angular/forms";
 import { Subject } from "rxjs/Subject";
 import { defer } from "rxjs/observable/defer";
+import { combineLatest } from "rxjs/observable/combineLatest";
 
-
-import { mergeMap, debounceTime,tap, map,filter } from 'rxjs/operators';
+import { mergeMap, debounceTime,tap, map,filter,startWith } from 'rxjs/operators';
 import { HttpParams, HttpClient } from "@angular/common/http";
 
 @Component({
@@ -30,29 +30,29 @@ export class AppComponent implements OnInit, AfterViewInit {
   checkboxControlValue$ = defer (
     () => {
       if(this.formData) {
-        return this.formData.get('isSend').valueChanges;
+        return this.formData.get('isSend').valueChanges.pipe(startWith(true));
       }
     }
   ).pipe(tap(value => console.log('checkboxControlValue$', value)));
 
-  searchResult$ = this.searchControlValue$.pipe(
+  searchResult$ = combineLatest(
+    this.searchControlValue$,
+    this.checkboxControlValue$,
+    (searchVal,chkVal) => ({searchVal, chkVal})).pipe(
     debounceTime(500),
-    filter(() => this.formData.get('isSend').value),
-    mergeMap(value => this.http.jsonp(
-        this.searchUrl(value,this.wikiAPI),
+    mergeMap(({searchVal, chkVal}) => this.http.jsonp<any[]>(
+        this.searchUrl(searchVal,this.wikiAPI),
         'callback'
-      )),
-    map((data: any[]) => {
-      if(data.length > 0) {
+      ),({searchVal, chkVal}, data) => ({chkVal, data})
+    ),
+    map(({chkVal,data}) => {
+      if(data.length > 0 && chkVal) {
         data.shift();
         return data[0];
       }
       return [];
     })
   );
-  // .subscribe(value => console.log(value));
-
-  // isSend$ = this.checkboxControlValue$.subscribe(value => console.log(value));
 
   constructor(
     private fb: FormBuilder,
@@ -65,7 +65,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     this.formData = this.fb.group({
       'search': [''],
-      'isSend': [false]
+      'isSend': [true]
     });
 
   }
