@@ -1,4 +1,19 @@
-
-
-<input [(ngModel)]="search" #searchRef="ngModel">
-<hr/> {{ search }}
+<form #form="ngForm" novalidate (ngSubmit)="send(form)">
+  <div>
+    <label for="firstName">First Name</label>
+    <input type="text" name="firstName" [(ngModel)]="firstName" required/>
+  </div>
+  <div>
+    <label for="lastName">last Name</label>
+    <input type="text" name="lastName" [(ngModel)]="lastName" required/>
+  </div>
+  <div>
+    <label for="phoneNumber">Phone Number</label>
+    <input type="text" name="phoneNumber" [(ngModel)]="phoneNumber" required/>
+  </div>
+  <!-- {{ form.get('phoneNumber')?.errors | json}} 用這個會報錯-->
+  <div *ngIf="form.controls?.phoneNumber?.errors">
+      {{ form.controls?.phoneNumber?.errors | json}}
+  </div>
+  <button type="submit" [disabled]="form.invalid">Send</button>
+</form>
